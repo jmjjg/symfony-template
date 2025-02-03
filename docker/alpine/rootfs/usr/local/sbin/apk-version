@@ -1,0 +1,100 @@
+#!/usr/bin/env ash
+# shellcheck shell=dash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+binary="$(basename "${0}")"
+side="tail"
+
+help()
+{
+  printf "%s [option]... [package]...\n" "${binary}"
+  printf "\nOptions"
+  printf "  -f|--first\n"
+  printf "  -h|--help\n"
+  printf "  -l|--last (default)\n"
+  printf "  -x|--xtrace\n"
+  printf "\nExample\n"
+  printf "  %s -f php php-soap\n" "${binary}"
+  printf "  %s php82=8.2.* php82-soap\n" "${binary}"
+}
+
+set +o errexit
+options=$(getopt -o fhlx --long first,help,last,xtrace -- "${@}")
+if [ "${?}" -ne 0 ] ; then
+  >&2 help
+  exit 1
+fi
+set -o errexit
+
+eval set -- "${options}"
+while true; do
+  case "${1}" in
+    -x|--xtrace ) set -o xtrace ; shift ;;
+    -f|--first  ) side="head" ; shift ;;
+    -h|--help   ) help && exit 0 ; shift ;;
+    -l|--last   ) side="tail" ; shift ;;
+    --          ) shift; break ;;
+    *           ) break ;;
+  esac
+done
+
+packages=$(echo "${@}" | sed 's/\s\+/\n/g' | sed "s/=\S\+//g" | sort -f -u )
+if [ -z "${packages}" ] ; then
+  >&2 help
+  >&2 echo ""
+  >&2 echo "Error: no package provided"
+  exit 1
+fi
+
+# @todo: --force-update / smart use of caching
+if [ "$(find /var/cache/apk/ -type f -iname "APKINDEX.*.tar.gz" | wc -l)" -eq 0 ] ; then
+  apk update
+fi
+
+notFound=0
+
+for package in ${packages} ; do
+  found="$(
+    set +o errexit
+
+    apk info -vv "${package}" \
+    | sed 's/^\([^:]\+\):.*$/\1/' \
+    | uniq \
+    | ${side} -1
+
+    set -o errexit
+  )"
+
+  if [ -z "${found}" ] ; then
+    >&2 echo "Error: package ${package} not found"
+    notFound="$((notFound + 1))"
+  else
+    version="$(
+      set +o errexit
+
+      apk info "${found}"  \
+      | grep "^${found}-.* description:$" \
+      | sed "s/^${found}-\(.*\) description:/\1/g" \
+      | uniq \
+      | ${side} -1
+
+      set -o errexit
+    )"
+
+    if [ -z "${version}" ] ; then
+      >&2 echo "Error: no version found for package ${package}"
+      notFound="$((notFound + 1))"
+    else
+      echo "${found}=${version} \\"
+    fi
+  fi
+done
+
+if [ "${notFound}" -ne 0 ] ; then
+  >&2 echo "Error: ${notFound} package(s) not found"
+fi
+
+exit "${notFound}"

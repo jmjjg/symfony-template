@@ -1,0 +1,29 @@
+FROM php-cli AS php-fpm
+
+SHELL ["/bin/ash", "-e", "-u", "-o", "pipefail", "-c"]
+
+ARG PHP_UID=82
+ARG PHP_GID=82
+
+ENV PHP_UID=${PHP_UID}
+ENV PHP_GID=${PHP_GID}
+
+RUN apk add \
+      --no-cache \
+      #libavif \
+      #php82-dev \
+      #php82-exif \
+      php82-fpm \
+      #php82-gd \
+      #php82-pcntl \
+      #php82-sodium \
+      #php82-xmlreader \
+      #php82-xmlwriter \
+      #php82-xsl \
+      #php82-zlib \
+    && ln -sf /usr/sbin/php-fpm82 /usr/sbin/php-fpm \
+    && rm -rf /var/cache/apk/*
+
+CMD ["/usr/sbin/php-fpm", "-R", "--nodaemonize"]
+
+EXPOSE 9000

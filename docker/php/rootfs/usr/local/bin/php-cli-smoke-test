@@ -1,0 +1,35 @@
+#!/usr/bin/env ash
+# shellcheck shell=dash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+#set -o xtrace
+
+errors=0
+
+check()
+{
+  local command="${1}"
+
+  set +o errexit
+  set +o pipefail
+
+  printf "%s... " "${command}"
+  log=$(${command} >> /dev/stdout 2>&1)
+  if [ "${?}" -eq 0 ] ; then
+    printf "ok\n"
+  else
+    errors="$((errors + 1))"
+    printf "error\n"
+    echo "${log}"
+  fi
+
+  set -o errexit
+  set -o pipefail
+}
+
+check "composer diagnose"
+check "symfony check:requirements"
+check "composer check-iconv-translit"
+check "composer check-db-connection"

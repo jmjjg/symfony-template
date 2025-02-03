@@ -1,0 +1,50 @@
+log_format custom
+  '[$time_iso8601][$request_id] "$request" $status $body_bytes_sent'
+  ' "$http_referer" "$http_user_agent"';
+
+server {
+    listen       80;
+    listen  [::]:80;
+    server_name  localhost;
+
+    root /var/www/html/public;
+    index index.php index.html index.htm;
+
+    add_header X-Request-Id $request_id;
+
+    access_log /dev/stdout custom;
+    error_log  /dev/stderr notice;
+
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+
+    # redirect server error pages to the static page /50x.html ?
+    #error_page   500 502 503 504  /50x.html;
+    #location = /50x.html {
+    #    root   /usr/share/nginx/html;
+    #}
+
+    # pass the PHP scripts to FastCGI server
+    location ~ \.php$ {
+        try_files $uri = 404;
+
+        fastcgi_index index.php;
+        fastcgi_pass php:9000;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+        include fastcgi_params;
+
+        fastcgi_param DOCUMENT_ROOT $document_root;
+        fastcgi_param HTTP_X_REQUEST_ID $request_id;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
+        internal;
+    }
+
+    # deny access to .htaccess files
+    location ~ /\.ht {
+        deny  all;
+    }
+}

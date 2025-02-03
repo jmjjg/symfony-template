@@ -1,0 +1,10 @@
+#!/usr/bin/env ash
+# shellcheck shell=dash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+#set -o xtrace
+
+/docker-entrypoint.d/20-envsubst-on-templates.sh
+nginx -s reload

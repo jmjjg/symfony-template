@@ -1,0 +1,5 @@
+.env
+app/var/cache
+app/var/log
+app/vendor
+!.gitkeep
