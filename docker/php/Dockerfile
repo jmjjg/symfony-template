@@ -61,7 +61,7 @@ COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 # @todo: backport configration
 
 COPY ./docker/alpine/rootfs/ /
-COPY ./docker/php/rootfs /
+COPY ./docker/php/php-common-rootfs /
 
 ARG src_dir=./app
 ARG dst_dir=/var/www/html
@@ -105,6 +105,8 @@ RUN apk add \
       #php82-zlib \
     && ln -sf /usr/sbin/php-fpm82 /usr/sbin/php-fpm \
     && rm -rf /var/cache/apk/*
+
+COPY ./docker/php/php-fpm-rootfs /
 
 USER www-data
 

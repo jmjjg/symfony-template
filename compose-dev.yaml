@@ -7,22 +7,18 @@ services:
             - ./docker/nginx/rootfs/etc/nginx/templates/:/etc/nginx/templates/:readonly
             - ./docker/nginx/rootfs/usr/local/bin/nginx-reload:/usr/local/bin/nginx-reload:readonly
 
-    # @fixme: duplicate
-    php-fpm:
-        volumes:
-            # @fixme: var as a volume, then :readonly app
-            - ./app:/var/www/html
-            - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-fpm-reload:/usr/local/bin/php-fpm-reload:readonly
-            - ./docker/php/rootfs/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf:readonly
-
-    # @fixme: duplicate
     php-cli:
         volumes:
             # @fixme: var as a volume, then :readonly app
             - ./app:/var/www/html
             - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-fpm-reload:/usr/local/bin/php-fpm-reload:readonly
-            - ./docker/php/rootfs/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf:readonly
+            - ./docker/php/php-common-rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
+
+    php-fpm:
+        volumes:
+            # @fixme: var as a volume, then :readonly app
+            - ./app:/var/www/html
+            - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
+            - ./docker/php/php-common-rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
+            - ./docker/php/php-fpm-rootfs/usr/local/bin/php-fpm-reload:/usr/local/bin/php-fpm-reload:readonly
+            - ./docker/php/php-fpm-rootfs/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf:readonly

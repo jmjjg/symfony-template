@@ -90,10 +90,10 @@ nginx-sh-root: ## Open a shell as root in the NGINX container
 ##@ — Dev, php-cli
 
 php-cli-sh: ## Open a shell in the php-cli container
-	@${compose} exec php-fpm sh
+	@${compose} run -it php-cli sh
 
 php-cli-sh-root: ## Open a shell as root in the php-cli container
-	@${compose} exec --user 0:0 php sh
+	@${compose} run -it --user 0:0 php-cli sh
 
 ##@ — Dev, php-fpm
 
