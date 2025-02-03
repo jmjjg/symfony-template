@@ -104,7 +104,7 @@ php-fpm-sh: ## Open a shell in the PHP container
 	@${compose} exec php-fpm sh
 
 php-fpm-sh-root: ## Open a shell as root in the PHP container
-	@${compose} exec --user 0:0 php sh
+	@${compose} exec --user 0:0 php-fpm sh
 
 ##@ — Dev, PostgreSQL
 

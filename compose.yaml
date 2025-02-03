@@ -41,7 +41,7 @@ services:
             context: .
             dockerfile: docker/php/Dockerfile
             target: php-fpm
-        container_name: php
+        container_name: php-fpm
         environment:
           DB_URL: ${DB_URL}
         networks:
