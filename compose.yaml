@@ -51,6 +51,9 @@ services:
         restart: unless-stopped
 
     postgresql:
+        build:
+            context: .
+            dockerfile: docker/postgresql/Dockerfile
         container_name: postgresql
         environment:
           POSTGRES_DB: ${DB_DATABASE}
@@ -63,7 +66,6 @@ services:
           interval: 5s
           timeout: 5s
           retries: 5
-        image: postgres:17.2-alpine3.21
         networks:
           - symfony
         ports:

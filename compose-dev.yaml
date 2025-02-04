@@ -7,6 +7,10 @@ services:
             - ./docker/nginx/rootfs/etc/nginx/templates/:/etc/nginx/templates/:readonly
             - ./docker/nginx/rootfs/usr/local/bin/nginx-reload:/usr/local/bin/nginx-reload:readonly
 
+    postgresql:
+        volumes:
+            - ./docker/postgresql/rootfs/usr/local/bin/postgresql-maintenance:/usr/local/bin/postgresql-maintenance:readonly
+
     php-cli:
         volumes:
             # @fixme: var as a volume, then :readonly app

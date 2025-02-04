@@ -1,0 +1,34 @@
+#!/usr/bin/env ash
+# shellcheck shell=dash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+#set -o xtrace
+
+url="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
+errors=0
+
+pg_exec()
+{
+  set +o errexit
+  local title="${1}"
+  shift
+  local command="${@}"
+  printf "${title}"
+  local output="$(psql "${url}" --command="${command}" > /dev/stdout 2>&1)"
+  if [ ${?} -ne 0 ] ; then
+    errors="$((errors + 1))"
+    printf " ko\n"
+    echo "${output}"
+  else
+    printf " ok\n"
+  fi
+  set -o errexit
+}
+
+pg_exec "Rebuild indexes..." "REINDEX DATABASE \"${POSTGRES_DB}\";"
+pg_exec "Garbage-collect and analyze the database..." "VACUUM ANALYZE;"
+pg_exec "Cluster all tables..." "CLUSTER;"
+
+exit ${errors}
