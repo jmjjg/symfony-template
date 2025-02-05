@@ -194,3 +194,13 @@ sudo curl \
 - https://hub.docker.com/r/nginxinc/nginx-unprivileged
 - https://hub.docker.com/_/nginx (Using environment variables in nginx configuration (new in 1.19))
 - https://github.com/nginxinc/docker-nginx-unprivileged
+
+# @see https://stackoverflow.com/a/33119321
+# @see https://ismatbabir.medium.com/use-supervisor-in-docker-container-9f61819bac4c
+# @see https://supervisord.org/subprocess.html#pidproxy-program
+# @see https://hynek.me/articles/docker-signals/
+# @see https://advancedweb.hu/supervisor-with-docker-lessons-learned/
+# @see https://hub.docker.com/r/willfarrell/crontab
+  # https://github.com/willfarrell/docker-crontab
+# @see https://www.google.com/search?client=ubuntu&channel=fs&q=docker+cron
+# @todo: additional_contexts (https://docs.docker.com/reference/compose-file/build/)

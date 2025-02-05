@@ -1,49 +1,72 @@
 services:
     nginx:
         build:
-            context: .
-            dockerfile: docker/nginx/Dockerfile
             args:
                 - NGINX_UID=${NGINX_UID:-1000}
                 - NGINX_GID=${NGINX_GID:-1000}
+                - TZ=${TZ:-Europe/Paris}
+            context: .
+            dockerfile: docker/nginx/Dockerfile
         container_name: nginx
         depends_on:
             - php-fpm
             - postgresql
+        environment:
+          TZ: ${TZ:-Europe/Paris}
         networks:
             - symfony
         ports:
             - "${FORWARD_NGINX_PORT:-80}:80"
         restart: unless-stopped
 
+    ofelia:
+        build:
+            args:
+                - TZ=${TZ:-Europe/Paris}
+            context: .
+            dockerfile: docker/ofelia/Dockerfile
+        container_name: ofelia
+        depends_on:
+            - nginx
+            - php-fpm
+            - postgresql
+        environment:
+          TZ: ${TZ:-Europe/Paris}
+        restart: unless-stopped
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+
     php-cli:
         build:
             args:
                 - PHP_UID=${PHP_UID:-1000}
                 - PHP_GID=${PHP_GID:-1000}
+                - TZ=${TZ:-Europe/Paris}
             context: .
             dockerfile: docker/php/Dockerfile
             target: php-cli
         container_name: php-cli
         environment:
           DB_URL: ${DB_URL}
+          TZ: ${TZ:-Europe/Paris}
         networks:
             - symfony
         restart: no
         scale: 0
 
-    # @todo: additional_contexts (https://docs.docker.com/reference/compose-file/build/)
     php-fpm:
         build:
             args:
                 - PHP_UID=${PHP_UID:-1000}
                 - PHP_GID=${PHP_GID:-1000}
+                - TZ=${TZ:-Europe/Paris}
             context: .
             dockerfile: docker/php/Dockerfile
             target: php-fpm
         container_name: php-fpm
         environment:
           DB_URL: ${DB_URL}
+          TZ: ${TZ:-Europe/Paris}
         networks:
             - symfony
         ports:
@@ -52,6 +75,8 @@ services:
 
     postgresql:
         build:
+            args:
+              - TZ=${TZ:-Europe/Paris}
             context: .
             dockerfile: docker/postgresql/Dockerfile
         container_name: postgresql
@@ -60,7 +85,7 @@ services:
           POSTGRES_USER: ${DB_USERNAME}
           POSTGRES_PASSWORD: ${DB_PASSWORD}
           PGDATA: /data/postgres
-          TZ: Europe/Paris # @todo: env + default + others
+          TZ: ${TZ:-Europe/Paris}
         healthcheck:
           test: [ "CMD-SHELL", "pg_isready -d ${DB_DATABASE} -U ${DB_USERNAME}" ]
           interval: 5s

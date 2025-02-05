@@ -87,6 +87,14 @@ nginx-sh: ## Open a shell in the NGINX container
 nginx-sh-root: ## Open a shell as root in the NGINX container
 	@${compose} exec --user 0:0 nginx sh
 
+##@ — Dev, ofelia
+
+php-ofelia-sh: ## Open a shell in the ofelia container
+	@${compose} run -it ofelia sh
+
+php-ofelia-sh-root: ## Open a shell as root in the ofelia container
+	@${compose} run -it --user 0:0 ofelia sh
+
 ##@ — Dev, php-cli
 
 php-cli-sh: ## Open a shell in the php-cli container

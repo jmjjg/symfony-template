@@ -27,6 +27,7 @@ pg_exec()
   set -o errexit
 }
 
+echo ""
 pg_exec "Rebuild indexes..." "REINDEX DATABASE \"${POSTGRES_DB}\";"
 pg_exec "Garbage-collect and analyze the database..." "VACUUM ANALYZE;"
 pg_exec "Cluster all tables..." "CLUSTER;"

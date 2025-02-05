@@ -37,6 +37,7 @@ RUN apk add \
       php82-zip \
       # Iconv Fix
       php82-pecl-apcu \
+      tzdata \
     && ln -sf /usr/bin/php82 /usr/bin/php \
     && curl -1sLf \
       'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash \
