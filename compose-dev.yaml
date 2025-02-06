@@ -7,9 +7,9 @@ services:
             - ./docker/nginx/rootfs/etc/nginx/templates/:/etc/nginx/templates/:readonly
             - ./docker/nginx/rootfs/usr/local/bin/nginx-reload:/usr/local/bin/nginx-reload:readonly
 
-    ofelia:
-        volumes:
-            - ./docker/ofelia/rootfs/etc/ofelia.conf:/etc/ofelia.conf:ro
+    # ofelia:
+    #     volumes:
+    #         - ./docker/ofelia/rootfs/etc/ofelia.conf:/etc/ofelia.conf:ro
 
     postgresql:
         volumes:

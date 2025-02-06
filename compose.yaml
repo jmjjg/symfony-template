@@ -19,22 +19,22 @@ services:
             - "${FORWARD_NGINX_PORT:-80}:80"
         restart: unless-stopped
 
-    ofelia:
-        build:
-            args:
-                - TZ=${TZ:-Europe/Paris}
-            context: .
-            dockerfile: docker/ofelia/Dockerfile
-        container_name: ofelia
-        depends_on:
-            - nginx
-            - php-fpm
-            - postgresql
-        environment:
-          TZ: ${TZ:-Europe/Paris}
-        restart: unless-stopped
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
+    # ofelia:
+    #     build:
+    #         args:
+    #             - TZ=${TZ:-Europe/Paris}
+    #         context: .
+    #         dockerfile: docker/ofelia/Dockerfile
+    #     container_name: ofelia
+    #     depends_on:
+    #         - nginx
+    #         - php-fpm
+    #         - postgresql
+    #     environment:
+    #       TZ: ${TZ:-Europe/Paris}
+    #     restart: unless-stopped
+    #     volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock:ro
 
     php-cli:
         build:
