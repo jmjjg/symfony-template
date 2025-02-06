@@ -1,4 +1,4 @@
-FROM alpine:3.20 AS php-common
+FROM alpine:3.20 AS php
 
 SHELL ["/bin/ash", "-e", "-u", "-o", "pipefail", "-c"]
 
@@ -62,7 +62,7 @@ COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 # @todo: backport configration
 
 COPY ./docker/alpine/rootfs/ /
-COPY ./docker/php/php-common-rootfs /
+COPY ./docker/php/rootfs /
 
 ARG src_dir=./app
 ARG dst_dir=/var/www/html
@@ -83,11 +83,11 @@ RUN mkdir -p /home/www-data/.composer \
 
 # ------------------------------------------------------------------------------
 
-FROM php-common AS php-cli
+FROM php AS php-cli
 
 # ------------------------------------------------------------------------------
 
-FROM php-common AS php-fpm
+FROM php AS php-fpm
 
 USER root
 
@@ -107,7 +107,7 @@ RUN apk add \
     && ln -sf /usr/sbin/php-fpm82 /usr/sbin/php-fpm \
     && rm -rf /var/cache/apk/*
 
-COPY ./docker/php/php-fpm-rootfs /
+COPY ./docker/php-fpm/rootfs /
 
 USER www-data
 
