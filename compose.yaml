@@ -54,6 +54,24 @@ services:
         restart: no
         scale: 0
 
+    # php-cron:
+    #     build:
+    #         args:
+    #             - PHP_UID=${PHP_UID:-1000}
+    #             - PHP_GID=${PHP_GID:-1000}
+    #             - TZ=${TZ:-Europe/Paris}
+    #         context: .
+    #         dockerfile: docker/php/Dockerfile
+    #         target: php-cron
+    #     container_name: php-cron
+    #     environment:
+    #       DB_URL: ${DB_URL}
+    #       TZ: ${TZ:-Europe/Paris}
+    #     networks:
+    #         - symfony
+    #     restart: unless-stopped
+    #     #scale: 0 # @fixme
+
     php-fpm:
         build:
             args:
@@ -71,6 +89,25 @@ services:
             - symfony
         ports:
             - "${FORWARD_PHP_PORT:-9000}:9000"
+        restart: unless-stopped
+
+    php-supervisor:
+        build:
+            args:
+                - PHP_UID=${PHP_UID:-1000}
+                - PHP_GID=${PHP_GID:-1000}
+                - TZ=${TZ:-Europe/Paris}
+            context: .
+            dockerfile: docker/php/Dockerfile
+            target: php-supervisor
+        container_name: php-supervisor
+        environment:
+          DB_URL: ${DB_URL}
+          TZ: ${TZ:-Europe/Paris}
+        networks:
+            - symfony
+        ports:
+          - "${FORWARD_SUPERVISORCTL_PORT:-9001}:9001"
         restart: unless-stopped
 
     postgresql:

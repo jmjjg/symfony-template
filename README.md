@@ -37,3 +37,11 @@ php -r "print_r(opcache_get_configuration());"
 - [ ] automated task "in the php container"
   - https://workflow.bearstech.com/documentation/tutoriels/service-cron/
   - https://wbarillon.medium.com/the-proper-and-easiest-way-to-set-cron-jobs-docker-version-1ef213578ad
+- https://gist.github.com/jdeathe/94d7b1681187a3a97c5cd4a7eee244f1
+- https://stackoverflow.com/questions/45395390/see-cron-output-via-docker-logs-without-using-an-extra-file
+- https://github.com/dubiousjim/dcron
+- https://symfony.com/doc/current/messenger.html
+
+php-cron exited with code 0
+php-cron    | setpgid: Operation not permitted
+php-cron    | setpgid: Operation not permitted

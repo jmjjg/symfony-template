@@ -87,6 +87,24 @@ FROM php AS php-cli
 
 # ------------------------------------------------------------------------------
 
+#FROM php-cli AS php-cron
+#
+#USER root
+#
+#RUN apk add \
+#      --no-cache \
+#      dcron \
+#    && rm -rf /var/cache/apk/*
+#
+#COPY ./docker/php-cron/rootfs /
+##RUN chmod 644 /etc/crontabs/root
+#
+##USER www-data
+#
+#CMD ["/usr/sbin/crond", "-f", "-L", "/proc/1/fd/1"]
+#
+# ------------------------------------------------------------------------------
+
 FROM php AS php-fpm
 
 USER root
@@ -114,3 +132,23 @@ USER www-data
 CMD ["/usr/sbin/php-fpm", "-R", "--nodaemonize"]
 
 EXPOSE 9000
+
+# ------------------------------------------------------------------------------
+
+FROM php-cli AS php-supervisor
+
+USER root
+
+RUN apk add \
+      --no-cache \
+      supervisor \
+    && rm -rf /var/cache/apk/*
+
+#COPY --chown=www-data:www-data ./docker/php-supervisor/rootfs /
+#RUN chown www-data: /etc/supervisord.conf
+
+COPY ./docker/php-supervisor/rootfs /
+
+#USER www-data
+
+CMD ["/usr/bin/supervisord", "--configuration=/etc/supervisord.conf", "--nodaemon"]

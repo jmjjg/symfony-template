@@ -76,53 +76,96 @@ logs: ## Follow application logs
 up: ## Start application
 	@${compose} up --detach --no-color --remove-orphans
 
+#------------------------------------------------------
+
+# define dc_exec
+# 	$(eval $@_hostname = $(1))
+#
+# 	echo "---$(1)---"
+# endef
+#
+# exec-nginx-sh: ## Test
+# 	@$(call dc_exec,"foo")
+
+exec=${compose} exec
+run=${compose} run -it
+root-exec=${exec} --user 0:0
+
+# @todo: variable in target names ? exec-<container>-sh / <container>-exec-sh
+exec-nginx-sh: 			## Open a shell in the container
+	@${exec} nginx sh
+exec-nginx-sh-root: ## Open a shell as root in the container
+	@${root-exec} nginx sh
+run-nginx-sh: 			## Run the container and open a shell in it
+	@${run} nginx sh
+run-nginx-sh-root: 	## Run the container and open a shell as root in it
+	@${run} --user 0:0 nginx sh
+
+#------------------------------------------------------
+
 ##@ — Dev, NGINX
 
 nginx-reload: ## Reload nginx configuration from templates
-	@${compose} exec nginx nginx-reload
+	@${exec} nginx nginx-reload
 
 nginx-sh: ## Open a shell in the NGINX container
-	@${compose} exec nginx sh
+	@${exec} nginx sh
 
 nginx-sh-root: ## Open a shell as root in the NGINX container
-	@${compose} exec --user 0:0 nginx sh
+	@${root-exec} nginx sh
 
-##@ — Dev, ofelia
-
-php-ofelia-sh: ## Open a shell in the ofelia container
-	@${compose} run -it ofelia sh
-
-php-ofelia-sh-root: ## Open a shell as root in the ofelia container
-	@${compose} run -it --user 0:0 ofelia sh
+# ##@ — Dev, ofelia
+#
+# php-ofelia-sh: ## Open a shell in the ofelia container
+# 	@${compose} run -it ofelia sh
+#
+# php-ofelia-sh-root: ## Open a shell as root in the ofelia container
+# 	@${compose} run -it --user 0:0 ofelia sh
 
 ##@ — Dev, php-cli
 
-php-cli-sh: ## Open a shell in the php-cli container
-	@${compose} run -it php-cli sh
+php-cli-sh: ## Start a shell in a new php-cli container
+	@${compose} run --remove-orphans -it php-cli sh
 
-php-cli-sh-root: ## Open a shell as root in the php-cli container
-	@${compose} run -it --user 0:0 php-cli sh
+php-cli-sh-root: ## Start a shell as root in a new php-cli container
+	@${compose} run --remove-orphans -it --user 0:0 php-cli sh
 
 ##@ — Dev, php-fpm
 
 php-fpm-reload: ## Reload php-fpm configuration from templates
-	@${compose} exec php-fpm php-fpm-reload
+	@${exec} php-fpm php-fpm-reload
 
-php-fpm-sh: ## Open a shell in the PHP container
-	@${compose} exec php-fpm sh
+php-fpm-sh: ## Open a shell in the php-fpm container
+	@${exec} php-fpm sh
 
-php-fpm-sh-root: ## Open a shell as root in the PHP container
-	@${compose} exec --user 0:0 php-fpm sh
+php-fpm-sh-root: ## Open a shell as root in the php-fpm container
+	@${root-exec} php-fpm sh
+
+
+# ##@ — Dev, php-supervisor
+
+php-supervisor-reload: ## Reload php-supervisor configuration
+	@${exec} php-supervisor supervisorctl reload
+
+php-supervisor-sh: ## Open a shell in the php-supervisor container
+	@${exec} php-supervisor sh
+
+php-supervisor-sh-root: ## Open a shell as root in the php-supervisor container
+	@${root-exec} php-supervisor sh
+
+# php-cron-sh-root: ## @fixme
+# 	#@${compose} run -it --user 0:0 php-cron sh
+# 	@${root-exec} php-cron sh
 
 ##@ — Dev, PostgreSQL
 
 pgsql-sh: ## Open a shell in the PostgreSQL container
-	@${compose} exec postgresql sh
+	@${exec} postgresql sh
 
 pgsql-sh-root: ## Open a shell as root in the PostgreSQL container
-	@${compose} exec --user 0:0 postgresql sh
+	@${root-exec} postgresql sh
 
 ##@ — App
 
 psql: ## Connect to the database using .env variables
-	@${compose} exec -it postgresql psql ${DB_URL}
+	@${exec} -it postgresql psql ${DB_URL}
