@@ -14,6 +14,8 @@
   - [x] apk-version(s)
   - [x] service-restart-php-fpm
 - [ ] TZ=Europe/Paris
+- [ ] redis
+    - https://symfony.com/doc/5.4/the-fast-track/en/31-redis.html
 
 ```bash
 symfony new app --version="6.4.*" --webapp --docker --no-git

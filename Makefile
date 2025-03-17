@@ -37,22 +37,33 @@ hadolint: ## Lint Dockerfile images
 			docker run --rm -i hadolint/hadolint < $$f; \
 	done
 
+quality: hadolint shellcheck ## Run all quality checks
+
 shellcheck: ## Lint shell scripts
 	@find . \
-		-not \( -path ./app/vendor -prune \) -type f \
+		-not \( -path ./.git -prune \) \
+		-not \( -path ./app/vendor -prune \) \
+		-type f \
 		-exec grep -q '^#!.*sh' {} \; \
 		-exec docker run --rm -it -v ".:/mnt" koalaman/shellcheck:stable {} +
 
+##@ — Help
+
 # @see https://cloud.theodo.com/en/blog/beautiful-makefile-awk
 help: ## List available commands
-	@echo "-${0}-"
+# @grep '^[^#]\S\+\-sh\(-root\)\{0,1\}:' $(MAKEFILE)
 	@echo "Usage:\n  make \033[36m[options]... [target]...\033[0m"
 	@echo ""
 	@echo "Options:"
 	@printf "  \033[36m%-15s\033[0m  %s\n"  "env" "Default \"dev\" (use compose-dev.yaml) or \"prod\""
 	@echo ""
 	@printf "Available commands:"
-	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n%s\n", substr($$0, 5) } ' $(MAKEFILE)
+	@awk 'BEGIN \
+	 	{FS = ":.*##"} \
+		/^##--/ { printf "\n" } \
+		/^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } \
+		/^##@/ { printf "\n%s\n", substr($$0, 5) } ' \
+		$(MAKEFILE)
 	@echo ""
 	@echo "Exemples:"
 	@echo "  make down build up logs"
@@ -78,41 +89,28 @@ up: ## Start application
 
 #------------------------------------------------------
 
-# define dc_exec
-# 	$(eval $@_hostname = $(1))
-#
-# 	echo "---$(1)---"
-# endef
-#
-# exec-nginx-sh: ## Test
-# 	@$(call dc_exec,"foo")
-
 exec=${compose} exec
+exec-root=${exec} --user 0:0
 run=${compose} run -it
-root-exec=${exec} --user 0:0
-
-# @todo: variable in target names ? exec-<container>-sh / <container>-exec-sh
-exec-nginx-sh: 			## Open a shell in the container
-	@${exec} nginx sh
-exec-nginx-sh-root: ## Open a shell as root in the container
-	@${root-exec} nginx sh
-run-nginx-sh: 			## Run the container and open a shell in it
-	@${run} nginx sh
-run-nginx-sh-root: 	## Run the container and open a shell as root in it
-	@${run} --user 0:0 nginx sh
+run-root=${run} --user 0:0
 
 #------------------------------------------------------
 
-##@ — Dev, NGINX
+##@ — Dev, nginx
 
-nginx-reload: ## Reload nginx configuration from templates
+# @todo: variable in target names ? exec-<container>-sh / <container>-exec-sh
+# @todo: cleanup everywhere
+nginx-reload: 						## Reload nginx configuration from templates
 	@${exec} nginx nginx-reload
-
-nginx-sh: ## Open a shell in the NGINX container
+##--
+nginx-exec-sh:						## Open a shell in the nginx container
 	@${exec} nginx sh
-
-nginx-sh-root: ## Open a shell as root in the NGINX container
-	@${root-exec} nginx sh
+nginx-exec-sh-root:				## Open a shell as root in the nginx container
+	@${exec-root} nginx sh
+#nginx-run-sh: 						## Run the nginx container and open a shell in it
+#	@${run} nginx sh
+#nginx-run-sh-root: 				## Run the nginx container and open a shell as root in it
+#	@${run-root} nginx sh
 
 # ##@ — Dev, ofelia
 #
@@ -134,28 +132,28 @@ php-cli-sh-root: ## Start a shell as root in a new php-cli container
 
 php-fpm-reload: ## Reload php-fpm configuration from templates
 	@${exec} php-fpm php-fpm-reload
-
+##--
 php-fpm-sh: ## Open a shell in the php-fpm container
 	@${exec} php-fpm sh
 
 php-fpm-sh-root: ## Open a shell as root in the php-fpm container
-	@${root-exec} php-fpm sh
+	@${exec-root} php-fpm sh
 
 
-# ##@ — Dev, php-supervisor
+##@ — Dev, php-supervisor
 
 php-supervisor-reload: ## Reload php-supervisor configuration
 	@${exec} php-supervisor supervisorctl reload
-
+##--
 php-supervisor-sh: ## Open a shell in the php-supervisor container
 	@${exec} php-supervisor sh
 
 php-supervisor-sh-root: ## Open a shell as root in the php-supervisor container
-	@${root-exec} php-supervisor sh
+	@${exec-root} php-supervisor sh
 
 # php-cron-sh-root: ## @fixme
 # 	#@${compose} run -it --user 0:0 php-cron sh
-# 	@${root-exec} php-cron sh
+# 	@${exec-root} php-cron sh
 
 ##@ — Dev, PostgreSQL
 
@@ -163,7 +161,7 @@ pgsql-sh: ## Open a shell in the PostgreSQL container
 	@${exec} postgresql sh
 
 pgsql-sh-root: ## Open a shell as root in the PostgreSQL container
-	@${root-exec} postgresql sh
+	@${exec-root} postgresql sh
 
 ##@ — App
 

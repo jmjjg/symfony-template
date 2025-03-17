@@ -2,4 +2,5 @@
 app/var/cache
 app/var/log
 app/vendor
+data/
 !.gitkeep

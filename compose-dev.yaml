@@ -1,7 +1,15 @@
+x-php-common-dev: &x-php-common-dev
+  volumes:
+    - ./app:/var/www/html:readonly
+    - ./data/app/var:/var/www/html/app/var
+    - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
+    - ./docker/php/rootfs/etc/php82/conf.d/00_opcache.ini:/etc/php82/conf.d/00_opcache.ini:readonly
+    - ./docker/php/rootfs/etc/php82/conf.d/50_settings.ini:/etc/php82/conf.d/50_settings.ini:readonly
+    - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
+
 services:
     nginx:
         volumes:
-            # @fixme: volumes, then readonly
             - ./app:/var/www/html:readonly
             - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
             - ./docker/nginx/rootfs/etc/nginx/templates/:/etc/nginx/templates/:readonly
@@ -16,45 +24,24 @@ services:
             - ./docker/postgresql/rootfs/usr/local/bin/postgresql-maintenance:/usr/local/bin/postgresql-maintenance:readonly
 
     php-cli:
-        volumes:
-            # @fixme: var as a volume, then :readonly app
-            - ./app:/var/www/html
-            - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
-            - ./docker/php/rootfs/etc/php82/conf.d/00_opcache.ini:/etc/php82/conf.d/00_opcache.ini:readonly
-            - ./docker/php/rootfs/etc/php82/conf.d/50_settings.ini:/etc/php82/conf.d/50_settings.ini:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
+        <<: *x-php-common-dev
 
     # php-cron:
     #     # @see https://github.com/dubiousjim/dcron/issues/13#issuecomment-1406937781
     #     #init: true
     #     volumes:
-    #         # @fixme: var as a volume, then :readonly app
-    #         - ./app:/var/www/html
-    #         - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
-    #         - ./docker/php/rootfs/etc/php82/conf.d/00_opcache.ini:/etc/php82/conf.d/00_opcache.ini:readonly
-    #         - ./docker/php/rootfs/etc/php82/conf.d/50_settings.ini:/etc/php82/conf.d/50_settings.ini:readonly
-    #         - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
+    #          <<: *x-php-common-dev
     #         # @fixme
     #         - ./docker/php-cron/rootfs/etc/crontabs/root:/etc/crontabs/root
 
     php-fpm:
+        <<: *x-php-common-dev
         volumes:
-            # @fixme: var as a volume, then :readonly app
-            - ./app:/var/www/html
-            - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
-            - ./docker/php/rootfs/etc/php82/conf.d/00_opcache.ini:/etc/php82/conf.d/00_opcache.ini:readonly
-            - ./docker/php/rootfs/etc/php82/conf.d/50_settings.ini:/etc/php82/conf.d/50_settings.ini:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
             - ./docker/php-fpm/rootfs/usr/local/bin/php-fpm-reload:/usr/local/bin/php-fpm-reload:readonly
             - ./docker/php-fpm/rootfs/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf:readonly
 
     php-supervisor:
+        <<: *x-php-common-dev
         volumes:
-            # @fixme: var as a volume, then :readonly app
-            - ./app:/var/www/html
-            - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
-            - ./docker/php/rootfs/etc/php82/conf.d/00_opcache.ini:/etc/php82/conf.d/00_opcache.ini:readonly
-            - ./docker/php/rootfs/etc/php82/conf.d/50_settings.ini:/etc/php82/conf.d/50_settings.ini:readonly
-            - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
             - ./docker/php-supervisor/rootfs/etc/supervisor.d/:/etc/supervisor.d/:readonly
             - ./docker/php-supervisor/rootfs/etc/supervisord.conf:/etc/supervisord.conf:readonly
