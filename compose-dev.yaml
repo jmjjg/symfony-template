@@ -1,11 +1,16 @@
 x-php-common-dev: &x-php-common-dev
   volumes:
+    # @info: on met toutes les configurations, impossible de surcharger ?
     - ./app:/var/www/html:readonly
-    - ./data/app/var:/var/www/html/app/var
+    - ./data/app/var:/var/www/html/var
     - ./docker/alpine/rootfs/usr/local/sbin/apk-version:/usr/local/sbin/apk-version:readonly
     - ./docker/php/rootfs/etc/php82/conf.d/00_opcache.ini:/etc/php82/conf.d/00_opcache.ini:readonly
     - ./docker/php/rootfs/etc/php82/conf.d/50_settings.ini:/etc/php82/conf.d/50_settings.ini:readonly
     - ./docker/php/rootfs/usr/local/bin/php-cli-smoke-test:/usr/local/bin/php-cli-smoke-test:readonly
+    - ./docker/php-fpm/rootfs/usr/local/bin/php-fpm-reload:/usr/local/bin/php-fpm-reload:readonly
+    - ./docker/php-fpm/rootfs/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf:readonly
+    - ./docker/php-supervisor/rootfs/etc/supervisor.d/:/etc/supervisor.d/:readonly
+    - ./docker/php-supervisor/rootfs/etc/supervisord.conf:/etc/supervisord.conf:readonly
 
 services:
     nginx:
@@ -36,12 +41,6 @@ services:
 
     php-fpm:
         <<: *x-php-common-dev
-        volumes:
-            - ./docker/php-fpm/rootfs/usr/local/bin/php-fpm-reload:/usr/local/bin/php-fpm-reload:readonly
-            - ./docker/php-fpm/rootfs/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf:readonly
 
     php-supervisor:
         <<: *x-php-common-dev
-        volumes:
-            - ./docker/php-supervisor/rootfs/etc/supervisor.d/:/etc/supervisor.d/:readonly
-            - ./docker/php-supervisor/rootfs/etc/supervisord.conf:/etc/supervisord.conf:readonly

@@ -62,8 +62,18 @@ php bin/console dbal:run-sql "show timezone;" --force-fetch
 docker run --rm -i hadolint/hadolint < ./docker/php/Dockerfile ; echo $?
 ```
 
+## Install symfony skeleton
+
+- https://symfony.com/doc/current/setup.html
+
 ```bash
-# https://symfony.com/doc/current/setup.html
+make php-fpm-sh-root
+# apk add git
+make php-fpm-sh
+# git config --global user.email "you@example.com"
+# git config --global user.name "Your Name"
+# symfony new app --version="7.2.x" --webapp
+
 # docker-compose exec -it php sh
 composer install
 composer diagnose

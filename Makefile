@@ -73,7 +73,11 @@ help: ## List available commands
 
 build: ## Build docker images
 	@BUILDKIT_PROGRESS=plain \
+	COMPOSE_BAKE=true \
 	${compose} build --pull --with-dependencies
+
+config: ## Debug configuration
+		@${compose} config
 
 down: ## Stop application
 	@${compose} down --remove-orphans
