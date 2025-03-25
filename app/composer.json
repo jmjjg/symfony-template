@@ -85,6 +85,12 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "check-db-connection": [
+          "bin/console dbal:run-sql \"SELECT NOW();\""
+        ],
+        "check-iconv-translit": [
+          "php -r 'iconv(\"UTF-8\", \"ISO-8859-1//TRANSLIT\", \"foobar\");'"
         ]
     },
     "conflict": {

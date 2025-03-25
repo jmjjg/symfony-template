@@ -18,6 +18,7 @@ x-php-common: &x-php-common
   environment:
     <<: *x-common-environment
     DB_URL: ${DB_URL}
+    SHELL_VERBOSITY: ${SHELL_VERBOSITY:-3}
   networks:
       - symfony
   restart: unless-stopped
